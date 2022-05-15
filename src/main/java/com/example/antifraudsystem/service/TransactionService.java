@@ -1,6 +1,6 @@
 package com.example.antifraudsystem.service;
 
-import com.example.antifraudsystem.model.entity.Transaction;
+import com.example.antifraudsystem.model.Transaction;
 import com.example.antifraudsystem.model.response.TransactionResponse;
 import com.example.antifraudsystem.util.enums.TransactionResultType;
 import org.springframework.stereotype.Service;

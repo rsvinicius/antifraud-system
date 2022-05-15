@@ -1,4 +1,4 @@
-package com.example.antifraudsystem.model.entity;
+package com.example.antifraudsystem.model;
 
 import com.example.antifraudsystem.annotations.Amount;
 import lombok.Data;

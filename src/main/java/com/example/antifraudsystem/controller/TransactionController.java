@@ -1,6 +1,6 @@
 package com.example.antifraudsystem.controller;
 
-import com.example.antifraudsystem.model.entity.Transaction;
+import com.example.antifraudsystem.model.Transaction;
 import com.example.antifraudsystem.model.response.TransactionResponse;
 import com.example.antifraudsystem.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
