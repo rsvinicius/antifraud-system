@@ -1,4 +1,4 @@
-package com.example.antifraudsystem.annotations;
+package com.example.antifraudsystem.util.validators;
 
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;

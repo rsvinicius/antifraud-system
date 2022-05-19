@@ -5,7 +5,6 @@ import com.example.antifraudsystem.security.authentication.RestAuthenticationEnt
 import com.example.antifraudsystem.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,17 +34,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic()
-                .authenticationEntryPoint(restAuthenticationEntryPoint) // Handles auth error
+                .authenticationEntryPoint(restAuthenticationEntryPoint)
                 .and()
-                .csrf().disable().headers().frameOptions().disable() // for Postman, the H2 console
+                .csrf().disable().headers().frameOptions().disable()
                 .and()
-                .authorizeRequests() // manage access
-                .antMatchers(HttpMethod.POST, "/api/auth/user").permitAll()
-                .antMatchers("/actuator/shutdown").permitAll() // needs to run test
-                // other matchers
+                .authorizeRequests()
+                .mvcMatchers("/api/auth/user", "/actuator/shutdown").permitAll()
+                .mvcMatchers("/api/auth/list").hasAnyRole("ADMINISTRATOR", "SUPPORT")
+                .mvcMatchers("/api/antifraud/transaction").hasRole("MERCHANT")
+                .mvcMatchers("/api/auth/**").hasRole("ADMINISTRATOR")
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS); // no session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Bean

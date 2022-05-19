@@ -1,15 +1,15 @@
 package com.example.antifraudsystem.service;
 
-import com.example.antifraudsystem.model.Transaction;
+import com.example.antifraudsystem.model.request.TransactionRequest;
 import com.example.antifraudsystem.model.response.TransactionResponse;
 import com.example.antifraudsystem.util.enums.TransactionResultType;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TransactionService {
-    public TransactionResponse transaction(Transaction transaction) {
+    public TransactionResponse transaction(TransactionRequest transactionRequest) {
         TransactionResultType transactionResultType;
-        Long amount = transaction.getAmount();
+        Long amount = transactionRequest.getAmount();
 
         if (amount <= 200) {
             transactionResultType = TransactionResultType.ALLOWED;

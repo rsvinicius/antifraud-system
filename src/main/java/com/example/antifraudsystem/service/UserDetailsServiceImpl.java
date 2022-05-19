@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
+    public static final String NOT_FOUND = "Not found: ";
     private final UserRepository userRepository;
 
     @Autowired
@@ -23,8 +24,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = Optional
-                .ofNullable(userRepository.findUserByUsername(username))
-                .orElseThrow(() -> new UsernameNotFoundException("Not found: " + username));
+                .ofNullable(userRepository.findUserByUsernameIgnoreCase(username))
+                .orElseThrow(() -> new UsernameNotFoundException(NOT_FOUND + username));
 
         return new UserDetailsImpl(user);
     }
