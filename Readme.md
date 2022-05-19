@@ -1,1 +1,1 @@
-WIP
+Stage 3/6: Authorization 
