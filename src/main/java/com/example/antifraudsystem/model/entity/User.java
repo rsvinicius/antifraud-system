@@ -22,7 +22,7 @@ import javax.validation.constraints.NotEmpty;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonView(View.UserView.class)
     private long id;
 

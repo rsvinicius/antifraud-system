@@ -27,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
-                .userDetailsService(userDetailsService) // user store
+                .userDetailsService(userDetailsService)
                 .passwordEncoder(getEncoder());
     }
 
@@ -43,6 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/api/auth/list").hasAnyRole("ADMINISTRATOR", "SUPPORT")
                 .mvcMatchers("/api/antifraud/transaction").hasRole("MERCHANT")
                 .mvcMatchers("/api/auth/**").hasRole("ADMINISTRATOR")
+                .mvcMatchers("/api/antifraud/**").hasRole("SUPPORT")
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

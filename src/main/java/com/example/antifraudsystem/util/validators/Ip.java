@@ -12,20 +12,21 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-@Constraint(validatedBy = Amount.Validator.class)
-public @interface Amount {
-    String message() default "Amount must be greater than 0!";
+@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Constraint(validatedBy = Ip.Validator.class)
+public @interface Ip {
+    String message() default "";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    class Validator implements ConstraintValidator<Amount, Long> {
+    class Validator implements ConstraintValidator<Ip, String> {
+        String IP_ADDRESS_REGEX = "((\\d{1,2}|1\\d{1,2}|2([0-4]\\d|5[0-5]))(\\.(?!$)|$)){4}";
 
         @Override
-        public boolean isValid(Long value, ConstraintValidatorContext context) {
-            return value != null && value > 0;
+        public boolean isValid(String value, ConstraintValidatorContext context) {
+            return value != null && value.matches(IP_ADDRESS_REGEX);
         }
     }
 }
