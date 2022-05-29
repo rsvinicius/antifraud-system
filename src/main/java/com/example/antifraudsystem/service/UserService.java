@@ -17,6 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.antifraudsystem.util.constants.Numbers.ZERO;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -33,7 +35,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
 
-        if (userRepository.count() == 0) {
+        if (userRepository.count() == ZERO) {
             user.setRole(UserRole.ADMINISTRATOR);
             user.setIsAccountLocked(false);
         }
@@ -59,34 +61,30 @@ public class UserService {
     public User changeRole(ChangeUserRoleRequest changeUserRoleRequest) {
         User user = findUser(changeUserRoleRequest.getUsername());
 
-        try {
-            UserRole userRole = UserRole.valueOf(changeUserRoleRequest.getRole().toUpperCase());
-            if ((userRole != UserRole.SUPPORT) && (userRole != UserRole.MERCHANT)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-            } else if (userRole.equals(user.getRole())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT);
-            }
-            user.setRole(userRole);
-        } catch (IllegalArgumentException | NullPointerException e) {
+        UserRole userRole = UserRole.valueOf(changeUserRoleRequest.getRole());
+
+        if (userRole.equals(UserRole.ADMINISTRATOR))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+
+        if (userRole.equals(user.getRole()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+
+        user.setRole(userRole);
+
         return userRepository.save(user);
     }
 
     public ChangeUserStatusResponse changeStatus(ChangeUserStatusRequest changeUserStatusRequest) {
         User user = findUser(changeUserStatusRequest.getUsername());
 
-        if (user.getRole() == UserRole.ADMINISTRATOR) {
+        if (user.getRole().equals(UserRole.ADMINISTRATOR))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
 
-        try {
-            UserStatus userStatus = UserStatus.valueOf(changeUserStatusRequest.getOperation().toUpperCase());
-            user.setIsAccountLocked(userStatus == UserStatus.LOCK);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        UserStatus newStatus = UserStatus.valueOf(changeUserStatusRequest.getOperation());
+        user.setIsAccountLocked(newStatus.equals(UserStatus.LOCK));
+
         userRepository.save(user);
+
         return new ChangeUserStatusResponse(user.getUsername(), user.getIsAccountLocked());
     }
 
@@ -96,4 +94,5 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }
+
 

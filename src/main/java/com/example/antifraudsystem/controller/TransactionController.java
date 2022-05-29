@@ -1,6 +1,6 @@
 package com.example.antifraudsystem.controller;
 
-import com.example.antifraudsystem.model.request.TransactionRequest;
+import com.example.antifraudsystem.model.entity.Transaction;
 import com.example.antifraudsystem.model.response.TransactionResponse;
 import com.example.antifraudsystem.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public TransactionResponse transaction(@Valid @RequestBody TransactionRequest transactionRequest) {
-        return transactionService.transaction(transactionRequest);
+    public TransactionResponse transaction(@Valid @RequestBody Transaction transaction) {
+        return transactionService.transaction(transaction);
     }
 }

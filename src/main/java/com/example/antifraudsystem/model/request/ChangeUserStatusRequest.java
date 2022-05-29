@@ -1,5 +1,7 @@
 package com.example.antifraudsystem.model.request;
 
+import com.example.antifraudsystem.util.enums.UserStatus;
+import com.example.antifraudsystem.util.validators.ValueOfEnum;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
@@ -9,6 +11,7 @@ public class ChangeUserStatusRequest {
     @NotEmpty
     private String username;
 
-    @NotEmpty
+    @ValueOfEnum(enumClass = UserStatus.class)
     private String operation;
 }
+
