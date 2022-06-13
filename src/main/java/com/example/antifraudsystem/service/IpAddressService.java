@@ -4,7 +4,7 @@ package com.example.antifraudsystem.service;
 import com.example.antifraudsystem.model.entity.IpAddress;
 import com.example.antifraudsystem.model.request.IpAddressRequest;
 import com.example.antifraudsystem.model.response.DeleteIpAddressResponse;
-import com.example.antifraudsystem.persistence.IpAddressRepository;
+import com.example.antifraudsystem.repository.IpAddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

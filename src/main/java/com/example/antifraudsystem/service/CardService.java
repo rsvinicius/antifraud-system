@@ -4,7 +4,7 @@ package com.example.antifraudsystem.service;
 import com.example.antifraudsystem.model.entity.Card;
 import com.example.antifraudsystem.model.request.CardNumberRequest;
 import com.example.antifraudsystem.model.response.DeleteCardResponse;
-import com.example.antifraudsystem.persistence.CardRepository;
+import com.example.antifraudsystem.repository.CardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

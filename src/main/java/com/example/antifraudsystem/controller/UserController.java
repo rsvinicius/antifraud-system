@@ -50,8 +50,8 @@ public class UserController {
 
     @GetMapping("/list")
     @JsonView(View.UserView.class)
-    public List<User> list() {
-        return userService.list();
+    public List<User> listAllUsers() {
+        return userService.findAllUsers();
     }
 
     @PutMapping("/role")

@@ -6,7 +6,7 @@ import com.example.antifraudsystem.model.request.ChangeUserRoleRequest;
 import com.example.antifraudsystem.model.request.ChangeUserStatusRequest;
 import com.example.antifraudsystem.model.response.ChangeUserStatusResponse;
 import com.example.antifraudsystem.model.response.DeleteUserResponse;
-import com.example.antifraudsystem.persistence.UserRepository;
+import com.example.antifraudsystem.repository.UserRepository;
 import com.example.antifraudsystem.util.enums.UserRole;
 import com.example.antifraudsystem.util.enums.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class UserService {
         return new DeleteUserResponse(username);
     }
 
-    public List<User> list() {
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 

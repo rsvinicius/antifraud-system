@@ -5,6 +5,7 @@ import com.example.antifraudsystem.security.authentication.RestAuthenticationEnt
 import com.example.antifraudsystem.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -41,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .mvcMatchers("/api/auth/user", "/actuator/shutdown").permitAll()
                 .mvcMatchers("/api/auth/list").hasAnyRole("ADMINISTRATOR", "SUPPORT")
-                .mvcMatchers("/api/antifraud/transaction").hasRole("MERCHANT")
+                .mvcMatchers(HttpMethod.POST,"/api/antifraud/transaction").hasRole("MERCHANT")
                 .mvcMatchers("/api/auth/**").hasRole("ADMINISTRATOR")
                 .mvcMatchers("/api/antifraud/**").hasRole("SUPPORT")
                 .and()

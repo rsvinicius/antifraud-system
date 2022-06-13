@@ -1,4 +1,4 @@
-package com.example.antifraudsystem.persistence;
+package com.example.antifraudsystem.repository;
 
 import com.example.antifraudsystem.model.entity.IpAddress;
 import org.springframework.data.jpa.repository.JpaRepository;

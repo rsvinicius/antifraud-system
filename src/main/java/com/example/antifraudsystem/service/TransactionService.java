@@ -1,10 +1,12 @@
 package com.example.antifraudsystem.service;
 
 import com.example.antifraudsystem.model.entity.Transaction;
+import com.example.antifraudsystem.model.request.TransactionFeedbackRequest;
 import com.example.antifraudsystem.model.response.TransactionResponse;
-import com.example.antifraudsystem.persistence.CardRepository;
-import com.example.antifraudsystem.persistence.IpAddressRepository;
-import com.example.antifraudsystem.persistence.TransactionRepository;
+import com.example.antifraudsystem.repository.CardRepository;
+import com.example.antifraudsystem.repository.IpAddressRepository;
+import com.example.antifraudsystem.repository.TransactionRepository;
+import com.example.antifraudsystem.repository.TransactionStatusRepository;
 import com.example.antifraudsystem.util.enums.TransactionStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,8 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 
 import static com.example.antifraudsystem.util.constants.Numbers.ONE;
@@ -29,22 +31,25 @@ public class TransactionService {
     public static final String BLOCKED_CARD_NUMBER = "card-number";
     public static final String REGION_CORRELATION = "region-correlation";
     public static final String IP_CORRELATION = "ip-correlation";
+    public static final String ALLOWED = TransactionStatus.ALLOWED.toString();
+    public static final String MANUAL_PROCESSING = TransactionStatus.MANUAL_PROCESSING.toString();
+    public static final String PROHIBITED = TransactionStatus.PROHIBITED.toString();
     private final IpAddressRepository ipAddressRepository;
     private final CardRepository cardRepository;
     private final TransactionRepository transactionRepository;
+    private final TransactionStatusRepository transactionStatusRepository;
 
     @Autowired
-    public TransactionService(IpAddressRepository ipAddressRepository, CardRepository cardRepository, TransactionRepository transactionRepository) {
+    public TransactionService(IpAddressRepository ipAddressRepository, CardRepository cardRepository, TransactionRepository transactionRepository, TransactionStatusRepository transactionStatusRepository) {
         this.ipAddressRepository = ipAddressRepository;
         this.cardRepository = cardRepository;
         this.transactionRepository = transactionRepository;
+        this.transactionStatusRepository = transactionStatusRepository;
     }
 
     public TransactionResponse transaction(Transaction transaction) {
         TreeSet<String> infoSet = new TreeSet<>();
         TransactionResponse transactionResponse = new TransactionResponse();
-
-        transactionRepository.save(transaction);
 
         TransactionStatus transactionStatus = getTransactionStatus(transaction.getAmount());
 
@@ -87,7 +92,44 @@ public class TransactionService {
         transactionResponse.setResult(transactionStatus);
         transactionResponse.setInfo(String.join(", ", infoSet));
 
+        transaction.setResult(transactionStatus.toString());
+        transactionRepository.save(transaction);
+
         return transactionResponse;
+    }
+
+    public Transaction feedback(TransactionFeedbackRequest transactionFeedbackRequest) {
+        Transaction transaction = findTransaction(transactionFeedbackRequest.getTransactionId());
+
+        boolean isTransactionResultEqualsRequestFeedback = transaction.getResult()
+                .equals(transactionFeedbackRequest.getFeedback());
+
+        boolean isFeedbackAlreadyInDatabase = !"".equals(transaction.getFeedback());
+
+        if (isFeedbackAlreadyInDatabase) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+
+        if (isTransactionResultEqualsRequestFeedback) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        transaction.setFeedback(transactionFeedbackRequest.getFeedback());
+
+        transactionStatusLimitChange(transaction);
+
+        return transactionRepository.save(transaction);
+    }
+
+    public List<Transaction> findAllTransactions() {
+        return transactionRepository.findAll();
+    }
+
+    public List<Transaction> findAllTransactionsByCardNumber(String number) {
+        if (transactionRepository.countAllByNumber(number) == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return transactionRepository.findAllByNumber(number);
     }
 
     private TransactionStatus getTransactionStatusByRegionOrIpAddressCorrelation(
@@ -118,10 +160,13 @@ public class TransactionService {
     }
 
     private TransactionStatus getTransactionStatus(long amount) {
-        return Arrays.stream(TransactionStatus.values())
-                .filter(val -> Math.max(val.getMin(), amount) == Math.min(amount, val.getMax()))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
+        if (amount <= Transaction.getAllowedLimit()) {
+            return TransactionStatus.ALLOWED;
+        } else if (amount <= Transaction.getManualLimit()) {
+            return TransactionStatus.MANUAL_PROCESSING;
+        } else {
+            return TransactionStatus.PROHIBITED;
+        }
     }
 
     private Boolean isIpAddressOrCardNumberBlocked(
@@ -145,6 +190,76 @@ public class TransactionService {
         Boolean isCardNumberBlocked = cardRepository.existsByNumber(cardNumber);
         if (isCardNumberBlocked) infoSet.add(BLOCKED_CARD_NUMBER);
         return isCardNumberBlocked;
+    }
+
+    private Transaction findTransaction(long id) {
+        return Optional
+                .ofNullable(transactionRepository.findByTransactionId(id))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    private void transactionStatusLimitChange(Transaction transaction) {
+        String result = transaction.getResult();
+        String feedback = transaction.getFeedback();
+
+        if (feedback.equals(ALLOWED)) {
+
+            if (result.equals(MANUAL_PROCESSING)) {
+                changeLimit(transaction, ALLOWED, true);
+            }
+
+            if (result.equals(PROHIBITED)) {
+                changeLimit(transaction, ALLOWED, true);
+                changeLimit(transaction, MANUAL_PROCESSING, true);
+            }
+        }
+
+        if (feedback.equals(MANUAL_PROCESSING)) {
+
+            if (result.equals(ALLOWED)) {
+                changeLimit(transaction, ALLOWED, false);
+            }
+
+            if (result.equals(PROHIBITED)) {
+                changeLimit(transaction, MANUAL_PROCESSING, true);
+            }
+        }
+
+        if (feedback.equals(PROHIBITED)) {
+
+            if (result.equals(ALLOWED)) {
+                changeLimit(transaction, ALLOWED, false);
+                changeLimit(transaction, MANUAL_PROCESSING, false);
+            }
+
+            if (result.equals(MANUAL_PROCESSING)) {
+                changeLimit(transaction, MANUAL_PROCESSING, false);
+            }
+        }
+
+        Transaction.setAllowedLimit(
+                transactionStatusRepository
+                        .findByName(ALLOWED).getMax());
+
+        Transaction.setManualLimit(
+                transactionStatusRepository
+                        .findByName(MANUAL_PROCESSING).getMax());
+    }
+
+    private void changeLimit(Transaction transaction, String name, Boolean isIncreasing) {
+        com.example.antifraudsystem.model.entity.TransactionStatus transactionStatus = transactionStatusRepository.findByName(name);
+
+        double operationType = (isIncreasing) ? 1 : -1;
+
+        double firstHalf = 0.8 * transactionStatus.getMax();
+
+        double secondHalf = operationType * 0.2 * transaction.getAmount();
+
+        long newLimit = (long) Math.ceil(firstHalf + secondHalf);
+
+        transactionStatus.setMax(newLimit);
+
+        transactionStatusRepository.save(transactionStatus);
     }
 }
 
