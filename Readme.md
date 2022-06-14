@@ -13,7 +13,7 @@ This project demonstrates (in a simplified form) the principles of anti-fraud sy
 This Anti-fraud System consists of the following validations:
 - Heuristics rules that prevents fraudsters from illegally transferring money from an account.
 - Card number and Ip Address (IPv4) block list.
-- Rule-based system (correlation):
+- Rule-based system: correlation between unique Ip Address or Regions. For example:
     - A transaction containing a card number is `PROHIBITED` if:
         - There are transactions from more than 2 regions of the world other than the region of the transaction that is being verified in the last hour in the transaction history;
         - There are transactions from more than 2 unique IP addresses other than the IP of the transaction that is being verified in the last hour in the transaction history.
@@ -55,7 +55,7 @@ Enterprise applications like anti-fraud systems are used by different types of u
 
 When working on an anti-fraud system, it is necessary to consider that the environment of transactions is constantly changing. There are many factors like the country's economy, the behavior of fraudsters, and the number of transactions happening concurrently that influence what we can call fraud.
 
-This system contains a adaptation mechanisms called **feedback**. Feedback will be carried out manually by a `SUPPORT` specialist for completed transactions. Based on the feedback results, the system will change the limits of fraud detection algorithms following the special rules. The table 3 shows the logic of feedback system:
+This system contains a adaptation mechanisms called **feedback**. Feedback will be carried out manually by a `SUPPORT` specialist for completed transactions. Based on the feedback results, the system will change the limits of fraud detection algorithms following the special rules. The following table shows the logic of feedback system:
 
 ##### Feedback system:
 | Transaction Feedback → Transaction Validity ↓ | ALLOWED              | MANUAL_PROCESSING | PROHIBITED           |
