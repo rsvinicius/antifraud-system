@@ -11,8 +11,8 @@ This project demonstrates (in a simplified form) the principles of anti-fraud sy
 #### Transaction Validation
 
 This Anti-fraud System consists of the following validations:
-- Heuristics rules that prevents fraudsters from illegally transferring money from an account by transaction amount limits.
-- Card number and Ip Address (IPv4) block list
+- Heuristics rules that prevents fraudsters from illegally transferring money from an account.
+- Card number and Ip Address (IPv4) block list.
 - Rule-based system (correlation):
     - A transaction containing a card number is `PROHIBITED` if:
         - There are transactions from more than 2 regions of the world other than the region of the transaction that is being verified in the last hour in the transaction history;
@@ -21,7 +21,7 @@ This Anti-fraud System consists of the following validations:
         - There are transactions from 2 regions of the world other than the region of the transaction that is being verified in the last hour in the transaction history;
         - There are transactions from 2 unique IP addresses other than the IP of the transaction that is being verified in the last hour in the transaction history.
 
-  ##### Table 1 - Region Codes:
+  ##### Region Codes:
   | Code | Description                      |
   	|------|----------------------------------|
   | EAP  | East Asia and Pacific            |
@@ -37,7 +37,7 @@ This Anti-fraud System consists of the following validations:
 
 Enterprise applications like anti-fraud systems are used by different types of users with various access levels. In this project system different users have different rights to access various system parts following the role model below:
 
-##### Table 2 - Role Model:
+##### Role Model:
 |                                 | ANONYMOUS | MERCHANT | ADMINISTRATOR | SUPPORT |  
 |---------------------------------|-----------|----------|---------------|---------|  
 | POST /api/auth/user             | +         | +        | +             | +       |  
@@ -57,7 +57,7 @@ When working on an anti-fraud system, it is necessary to consider that the envir
 
 This system contains a adaptation mechanisms called **feedback**. Feedback will be carried out manually by a `SUPPORT` specialist for completed transactions. Based on the feedback results, the system will change the limits of fraud detection algorithms following the special rules. The table 3 shows the logic of feedback system:
 
-##### Table 3 - Feedback system:
+##### Feedback system:
 | Transaction Feedback → Transaction Validity ↓ | ALLOWED              | MANUAL_PROCESSING | PROHIBITED           |
 |-----------------------------------------------|----------------------|-------------------|----------------------|
 | ALLOWED                                       | Exception            | ↓ max ALLOWED     | ↓ max ALLOWED/MANUAL |
