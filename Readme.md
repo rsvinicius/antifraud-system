@@ -13,7 +13,7 @@ This project demonstrates (in a simplified form) the principles of anti-fraud sy
 This Anti-fraud System consists of the following validations:
 - Heuristics rules that prevents fraudsters from illegally transferring money from an account.
 - Card number and Ip Address (IPv4) block list.
-- Rule-based system: correlation between unique Ip Address or Regions. For example:
+- Rule-based system (Ip Address/Regions correlation). Ex:
     - A transaction containing a card number is `PROHIBITED` if:
         - There are transactions from more than 2 regions of the world other than the region of the transaction that is being verified in the last hour in the transaction history;
         - There are transactions from more than 2 unique IP addresses other than the IP of the transaction that is being verified in the last hour in the transaction history.
